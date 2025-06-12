@@ -34,6 +34,8 @@ class Load extends Phaser.Scene{
         this.load.audio('sfxclick', 'Key.wav');
         this.load.audio('Died', 'Explosion.wav');
         this.load.audio('Scream','Scream.wav');
+        this.load.audio('Door','Door.wav');
+        this.load.audio('Reset','YouDied.mp3')
 
         // Oooh, fancy. A multi atlas is a texture atlas which has the textures spread
         // across multiple png files, so as to keep their size small for use with
@@ -42,6 +44,10 @@ class Load extends Phaser.Scene{
         // The multiatlas was created using TexturePacker and the Kenny
         // Particle Pack asset pack.
         this.load.multiatlas("kenny-particles", "kenny-particles.json");
+
+        // Load the bitmap font
+        this.load.bitmapFont("rocketSquare", "KennyRocketSquare_0.png", "KennyRocketSquare.fnt");
+
     }
 
     create(){

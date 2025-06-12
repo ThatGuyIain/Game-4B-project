@@ -11,7 +11,7 @@ class Platfomer extends Phaser.Scene{
         this.PARTICLE_VELOCITY = 0;
         this.SCALE = 2;
         this.canDouble = true;
-        this.lives = 3;
+        this.lives = 5;
 
     }
 
@@ -29,11 +29,23 @@ class Platfomer extends Phaser.Scene{
         this.tileset = this.map.addTilesetImage("Tiles","tilemap_tiles");
         this.transparent = this.map.addTilesetImage("transparent","trans_tiles");
 
-        //this.test = this.map.createLayer("TestStage",this.tileset,0,0);
+        //Create background Parallax
+        // Furthest background
+        this.parallax2 = this.map.createLayer('ParallaxTwo', this.tileset,300,100);
+        this.parallax2.setAlpha(.4);
+        this.parallax2.setScale(.85);
+        this.parallax2.setScrollFactor(.3);
+
+        // Closest background
+        this.parallax = this.map.createLayer('ParallaxOne', this.tileset,0,0);
+        this.parallax.setAlpha(.6);
+        this.parallax.setScale(.99);
+        this.parallax.setScrollFactor(.5);
+
+        // Create our map layers
         this.stageOne = this.map.createLayer("StageOne",this.tileset,0,0);
         this.stageOneTrans = this.map.createLayer("StageOneTrans",this.transparent,0,0);
         this.doorOne = this.map.createLayer("DoorOne",this.tileset,0,0);
-
 
         //Set collidable tiles
 
@@ -61,9 +73,6 @@ class Platfomer extends Phaser.Scene{
         my.sprite.player.setMaxVelocity(200,500);
 
         //Enable player collision with map
-/*
-        this.physics.add.collider(my.sprite.player,this.test);
-*/
         this.physics.add.collider(my.sprite.player,this.stageOne);
         this.physics.add.collider(my.sprite.player,this.stageOneTrans,(obj1,obj2) =>{
             // Checks if the player has touched a death tile
@@ -91,6 +100,10 @@ class Platfomer extends Phaser.Scene{
                     my.sprite.activeKey.destroy();
                     this.door1.active = false;
                     this.doorOne.setAlpha(.3);
+                    this.sound.play('Door',{
+                        volume: 0.5
+                    })
+                    my.sprite.activeKey = null;
                 }
             }
         })
@@ -168,6 +181,8 @@ class Platfomer extends Phaser.Scene{
 
         });
 
+        // Add text to show player lives
+        my.text.lives = this.add.bitmapText(10,0, "rocketSquare", "Lives: "+this.lives);
     }
 
 
@@ -263,9 +278,11 @@ class Platfomer extends Phaser.Scene{
             my.sprite.player.y = 500;
             my.sprite.player.x = 150;
             this.lives -=1;
-            this.sound.play('Scream',{
-                volume: 0.5
-            })
+            if(this.lives > 0){
+                this.sound.play('Scream',{
+                    volume: 0.5
+                })
+            }
         }
 
         //Handle moving key 
@@ -283,7 +300,9 @@ class Platfomer extends Phaser.Scene{
 
         // Check if the player loses or not
         if(this.lives <= 0){
-            console.log("dead");
+            this.sound.play('Reset',{
+                volume:0.8
+            })
             this.scene.restart();
         }
     }
