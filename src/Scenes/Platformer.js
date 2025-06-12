@@ -12,6 +12,7 @@ class Platfomer extends Phaser.Scene{
         this.SCALE = 2;
         this.canDouble = true;
         this.lives = 5;
+        this.checkpoint = false;
 
     }
 
@@ -77,8 +78,13 @@ class Platfomer extends Phaser.Scene{
         this.physics.add.collider(my.sprite.player,this.stageOneTrans,(obj1,obj2) =>{
             // Checks if the player has touched a death tile
             if(obj2.properties.isDeadly){
-                my.sprite.player.y = 500;
-                my.sprite.player.x = 150;
+                if(this.checkpoint){
+                    my.sprite.player.y = 90;
+                    my.sprite.player.x = 840;
+                }else{
+                    my.sprite.player.y = 500;
+                    my.sprite.player.x = 150;
+                }
                 this.lives -=1;
                 if(this.lives > 0){
                     this.sound.play('Died',{
@@ -106,12 +112,26 @@ class Platfomer extends Phaser.Scene{
                     my.sprite.activeKey = null;
                 }
             }
+
+            if(tile.properties.checkpoint){
+                // Checks if the check point has been touched
+                // If not it will play a sound effect and visual effect
+                // Also prevents the game from demolishing the player's ears if they are standing on the checkpoint...
+                if(!this.checkpoint){
+                    this.checkpoint = true;
+                }
+            }
+
+            if(tile.properties.end){
+                this.scene.start('endgame')
+            }
         })
 
         // set up Phaser-provided cursor key input
         cursors = this.input.keyboard.createCursorKeys();
 
         this.rKey = this.input.keyboard.addKey('R');
+        this.sKey = this.input.keyboard.addKey('S');
 
         //Code for the camera
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
@@ -182,7 +202,7 @@ class Platfomer extends Phaser.Scene{
         });
 
         // Add text to show player lives
-        my.text.lives = this.add.bitmapText(10,0, "rocketSquare", "Lives: "+this.lives);
+        //my.text.lives = this.add.bitmapText(10,0, "rocketSquare", "Lives: "+this.lives);
     }
 
 
@@ -273,10 +293,20 @@ class Platfomer extends Phaser.Scene{
             this.scene.restart();
         }
 
+        if(Phaser.Input.Keyboard.JustDown(this.sKey)){
+            my.sprite.player.x = 840;
+            my.sprite.player.y = 96;
+        }
+
         // Check if the player has fallen off the map
         if(my.sprite.player.y >= config.height-50){
-            my.sprite.player.y = 500;
-            my.sprite.player.x = 150;
+            if(this.checkpoint){
+                my.sprite.player.y = 90;
+                my.sprite.player.x = 840;
+            }else{
+                my.sprite.player.y = 500;
+                my.sprite.player.x = 150;
+            }
             this.lives -=1;
             if(this.lives > 0){
                 this.sound.play('Scream',{
@@ -303,7 +333,7 @@ class Platfomer extends Phaser.Scene{
             this.sound.play('Reset',{
                 volume:0.8
             })
-            this.scene.restart();
+            this.scene.start('died');
         }
     }
 
